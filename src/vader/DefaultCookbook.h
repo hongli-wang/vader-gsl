@@ -49,7 +49,8 @@ const cookbookConfigType Vader::defaultCookbookDefinition = {
         {"virtual_potential_temperature",  {VirtualPotentialTemperature_B::Name,
                                             VirtualPotentialTemperature_A::Name}},
         {"virtual_temperature",    {AirVirtualTemperature_A::Name}},
-        {"vwind_at_10m",           {vwind_at_10m_A::Name}}
+        {"vwind_at_10m",           {vwind_at_10m_A::Name}},
+        {"surface_fine_pm",        {SurfaceFinePM_A::Name}}
     };
 
 }  // namespace vader

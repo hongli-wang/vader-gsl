@@ -60,6 +60,8 @@ vader/recipes/WaterVaporMixingRatioWrtMoistAirAndCondensedWater.h
 vader/recipes/WaterVaporMixingRatioWrtMoistAirAndCondensedWater_A.cc
 vader/recipes/WaterVaporMixingRatioWrtMoistAirAndCondensedWater2m.h
 vader/recipes/WaterVaporMixingRatioWrtMoistAirAndCondensedWater2m_A.cc
+vader/recipes/SurfaceFinePM.h
+vader/recipes/SurfaceFinePM_A.cc
 mo/common_varchange.h
 mo/common_varchange.cc
 mo/common_linearvarchange.h
