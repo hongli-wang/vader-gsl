@@ -22,11 +22,11 @@ namespace vader
 
 // Static attribute initialization
 const char SurfaceFinePM_A::Name[] = "SurfaceFinePM_A";
-const std::vector<std::string> SurfaceFinePM_A::Ingredients = {"air_temperature",
-                                                                         "surface_pressure"};
+const std::vector<std::string> SurfaceFinePM_A::Ingredients = {"aso4i",
+                                                                         "aso4j"};
 
 // Register the maker
-static RecipeMaker<SurfaceFinePM_A> makerTempToPTemp_(SurfaceFinePM_A::Name);
+static RecipeMaker<SurfaceFinePM_A> makerSurfaceFinePM_A_(SurfaceFinePM_A::Name);
 
 SurfaceFinePM_A::SurfaceFinePM_A(const Parameters_ & params,
                                     const VaderConfigVars & configVariables):
@@ -53,13 +53,13 @@ std::vector<std::string> SurfaceFinePM_A::ingredients() const
 
 size_t SurfaceFinePM_A::productLevels(const atlas::FieldSet & afieldset) const
 {
-    return afieldset.field("air_temperature").levels();
+    return afieldset.field("aso4i").levels();
 }
 
 atlas::FunctionSpace SurfaceFinePM_A::productFunctionSpace
                                                 (const atlas::FieldSet & afieldset) const
 {
-    return afieldset.field("air_temperature").functionspace();
+    return afieldset.field("aso4i").functionspace();
 }
 
 bool SurfaceFinePM_A::executeNL(atlas::FieldSet & afieldset)
@@ -67,37 +67,21 @@ bool SurfaceFinePM_A::executeNL(atlas::FieldSet & afieldset)
     oops::Log::trace() << "entering SurfaceFinePM_A::executeNL function"
         << std::endl;
 
-    // Extract values from client config
-    const double p0 = configVariables_.getDouble("reference_pressure");
-    const double kappa = configVariables_.getDouble("kappa");  // Need better name
-
-    atlas::Field temperature = afieldset.field("air_temperature");
-    atlas::Field surface_pressure = afieldset.field("surface_pressure");
+    atlas::Field aso4i = afieldset.field("aso4i");
+    atlas::Field aso4j = afieldset.field("aso4j");
     atlas::Field surface_fine_pm = afieldset.field("surface_fine_pm");
-    std::string t_units, ps_units;
 
-    temperature.metadata().get("units", t_units);
-    ASSERT_MSG(t_units == "K", "SurfaceFinePM_A::executeNL: Incorrect units for "
-                            "air_temperature");
-    surface_pressure.metadata().get("units", ps_units);
-    ASSERT_MSG(ps_units == "Pa", "SurfaceFinePM_A::executeNL: Incorrect units for "
-                            "surface_air_pressure");
-    oops::Log::debug() << "SurfaceFinePM_A::execute: p0 value: " << p0 <<
-        std::endl;
-    oops::Log::debug() << "SurfaceFinePM_A::execute: kappa value: " << kappa <<
-    std::endl;
-
-    auto temperature_view = atlas::array::make_view<double, 2>(temperature);
-    auto surface_pressure_view = atlas::array::make_view<double, 2>(surface_pressure);
+    auto aso4i_view = atlas::array::make_view<double, 2>(aso4i);
+    auto aso4j_view = atlas::array::make_view<double, 2>(aso4j);
     auto surface_fine_pm_view = atlas::array::make_view<double, 2>(surface_fine_pm);
 
-    size_t grid_size = surface_pressure.size();
+    size_t grid_size = aso4j.size();
 
-    int nlevels = temperature.levels();
+    int nlevels = aso4i.levels();
     for (int level = 0; level < nlevels; ++level) {
       for ( size_t jnode = 0; jnode < grid_size ; ++jnode ) {
         surface_fine_pm_view(jnode, level) =
-            temperature_view(jnode, level) * pow(p0 / surface_pressure_view(jnode, 0), kappa);
+                      aso4i_view(jnode, level) + aso4j_view(jnode, level);
       }
     }
 
